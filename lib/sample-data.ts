@@ -1,0 +1,171 @@
+import type { User, Patient, Doctor, Appointment, FieldSetting } from "./types"
+
+export const sampleUsers: User[] = [
+  {
+    id: "1",
+    username: "staff1",
+    email: "staff@hospital.com",
+    phone: "+1234567890",
+    fullName: "Sarah Johnson",
+    role: "staff",
+    createdAt: new Date("2024-01-01"),
+  },
+  {
+    id: "2",
+    username: "doctor1",
+    email: "doctor@hospital.com",
+    phone: "+1234567891",
+    fullName: "Dr. Michael Smith",
+    role: "doctor",
+    createdAt: new Date("2024-01-01"),
+  },
+  {
+    id: "3",
+    username: "admin1",
+    email: "admin@hospital.com",
+    phone: "+1234567892",
+    fullName: "Admin User",
+    role: "admin",
+    createdAt: new Date("2024-01-01"),
+  },
+]
+
+export const samplePatients: Patient[] = [
+  {
+    id: "1",
+    patientId: "P001",
+    fullName: "John Doe",
+    email: "john.doe@email.com",
+    phone: "+1234567893",
+    dateOfBirth: new Date("1990-05-15"),
+    address: "123 Main St, City, State",
+    emergencyContact: "+1234567894",
+    createdAt: new Date("2024-01-15"),
+  },
+  {
+    id: "2",
+    patientId: "P002",
+    fullName: "Jane Smith",
+    email: "jane.smith@email.com",
+    phone: "+1234567895",
+    dateOfBirth: new Date("1985-08-22"),
+    address: "456 Oak Ave, City, State",
+    emergencyContact: "+1234567896",
+    createdAt: new Date("2024-01-16"),
+  },
+  {
+    id: "3",
+    patientId: "P003",
+    fullName: "Robert Johnson",
+    email: "robert.j@email.com",
+    phone: "+1234567897",
+    dateOfBirth: new Date("1978-12-10"),
+    address: "789 Pine St, City, State",
+    emergencyContact: "+1234567898",
+    createdAt: new Date("2024-01-17"),
+  },
+]
+
+export const sampleDoctors: Doctor[] = [
+  {
+    id: "1",
+    name: "Dr. Michael Smith",
+    specialization: "Cardiology",
+    department: "Cardiology",
+  },
+  {
+    id: "2",
+    name: "Dr. Emily Davis",
+    specialization: "Pediatrics",
+    department: "Pediatrics",
+  },
+  {
+    id: "3",
+    name: "Dr. James Wilson",
+    specialization: "Orthopedics",
+    department: "Orthopedics",
+  },
+]
+
+export const sampleAppointments: Appointment[] = [
+  {
+    id: "1",
+    tokenNumber: 1,
+    patientId: "P001",
+    patientName: "John Doe",
+    doctorId: "1",
+    doctorName: "Dr. Michael Smith",
+    appointmentSlot: "09:00 AM",
+    appointmentDate: new Date(),
+    status: "scheduled",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "2",
+    tokenNumber: 2,
+    patientId: "P002",
+    patientName: "Jane Smith",
+    doctorId: "2",
+    doctorName: "Dr. Emily Davis",
+    appointmentSlot: "09:30 AM",
+    appointmentDate: new Date(),
+    status: "vitals_done",
+    vitals: {
+      bloodPressure: "120/80",
+      temperature: "98.6°F",
+      pulse: "72",
+      weight: "65kg",
+      height: "165cm",
+    },
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+  {
+    id: "3",
+    tokenNumber: 3,
+    patientId: "P003",
+    patientName: "Robert Johnson",
+    doctorId: "3",
+    doctorName: "Dr. James Wilson",
+    appointmentSlot: "10:00 AM",
+    appointmentDate: new Date(),
+    status: "with_doctor",
+    vitals: {
+      bloodPressure: "130/85",
+      temperature: "99.1°F",
+      pulse: "78",
+      weight: "75kg",
+      height: "175cm",
+    },
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+]
+
+export const sampleFieldSettings: FieldSetting[] = [
+  {
+    id: "1",
+    screen: "dashboard",
+    field: "active_appointments",
+    label: "Active Appointments",
+    description: "Number of active appointments today",
+    visible: true,
+  },
+  {
+    id: "2",
+    screen: "dashboard",
+    field: "completed_appointments",
+    label: "Completed Appointments",
+    description: "Number of completed appointments today",
+    visible: true,
+  },
+  {
+    id: "3",
+    screen: "dashboard",
+    field: "return_tokens",
+    label: "Return Tokens",
+    description: "Number of patients in return queue",
+    visible: true,
+  },
+]
