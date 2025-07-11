@@ -1,5 +1,5 @@
 import type React from "react"
-import { LoadingSpinner } from "./loading-spinner"
+import LoadingSpinner from "./loading-spinner"
 
 interface LoadingOverlayProps {
   isLoading: boolean

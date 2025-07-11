@@ -1,5 +1,7 @@
 "use client"
 import React, { createContext, useContext, useState, useCallback } from "react";
+import Lottie from "lottie-react";
+import loaderAnimation from "./loader-animation.json";
 
 const GlobalLoadingContext = createContext({
   isLoading: false,
@@ -20,7 +22,9 @@ export function GlobalLoadingProvider({ children }: { children: React.ReactNode 
       {isLoading && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center gap-3">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="w-24 h-24">
+              <Lottie animationData={loaderAnimation} loop={true} />
+            </div>
             <p className="text-gray-700 font-medium">Loading...</p>
           </div>
         </div>

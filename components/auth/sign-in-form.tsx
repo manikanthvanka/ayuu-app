@@ -29,6 +29,9 @@ export function SignInForm() {
     setError("")
 
     try {
+      // Simulate async operation
+      await new Promise((resolve) => setTimeout(resolve, 700)); // 700ms delay
+
       const user = signIn(username, password, role)
 
       if (user) {
