@@ -58,7 +58,7 @@ export function Sidebar({ user, isOpen, onClose }: SidebarProps) {
     { href: "/queue", label: "Live Queue", icon: Monitor },
     { href: "/tracking", label: "Stage Tracking", icon: TrendingUp },
     { href: "/roles", label: "Role Management", icon: Shield },
-    { href: "/settings", label: "Field Settings", icon: Settings },
+    { href: "/screen-fields", label: "Field Settings", icon: Settings },
   ]
 
   const getMenuItems = () => {

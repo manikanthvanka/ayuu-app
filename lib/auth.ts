@@ -16,7 +16,7 @@ export const signIn = (username: string, password: string, role: string): User |
   const user = sampleUsers.find((u) => u.username === username && u.role === role)
 
   // In a real app, you'd verify the password hash
-  if (user && password === "password123") {
+  if (user && password === "123") {
     return user
   }
 

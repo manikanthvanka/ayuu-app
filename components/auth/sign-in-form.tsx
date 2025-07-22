@@ -2,26 +2,42 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Stethoscope, Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react"
+import { Stethoscope, Mail, Lock, Eye, EyeOff } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { signIn } from "@/lib/auth"
 import { useGlobalLoading } from "@/components/ui/GlobalLoadingProvider"
+import { useAuth } from "@/components/auth/AuthProvider"
 
-export function SignInForm() {
+export function SignInForm({
+  className,
+  ...props
+}: React.ComponentProps<"form">) {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [role, setRole] = useState("")
   const [error, setError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+  const [lottieData, setLottieData] = useState<any>(null)
   const router = useRouter()
-  const { isLoading, setLoading } = useGlobalLoading()
+  const { setLoading } = useGlobalLoading()
+  const { setUser } = useAuth()
+
+  // Load Lottie animation
+  useEffect(() => {
+    fetch("/lottie/signin-animation.json")
+      .then((res) => res.json())
+      .then(setLottieData)
+      .catch((error) => {
+        console.error("Failed to load Lottie animation:", error)
+        setLottieData(null)
+      })
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,13 +49,14 @@ export function SignInForm() {
 
       if (user) {
         localStorage.setItem("user", JSON.stringify(user))
+        setUser(user) // update context immediately
         router.push("/dashboard")
       } else {
         setError("Invalid credentials or role")
+        setLoading(false)
       }
     } catch (err) {
       setError("An error occurred during sign in")
-    } finally {
       setLoading(false)
     }
   }
@@ -51,145 +68,109 @@ export function SignInForm() {
   ]
 
   return (
-    <div className="w-full max-w-md mx-auto">
-      {/* Ayuu Logo and Title */}
-      <div className="text-center mb-8">
-        <div className="flex justify-center mb-4">
-          <div className="h-16 w-16 rounded-full bg-primary flex items-center justify-center shadow-ayuu-lg">
-            <Stethoscope className="h-8 w-8 text-white" />
+    <form className={cn("flex flex-col gap-6", className)} onSubmit={handleSubmit} {...props}>
+    {error && (
+        <Alert variant="destructive">
+          <AlertDescription className="text-sm">{error}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="grid gap-6">
+        <div className="grid gap-3">
+          <Label htmlFor="username">Username or Email</Label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              className="pl-10"
+              placeholder="admin@ayuu.com"
+            />
           </div>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Ayuu</h1>
-        <p className="text-gray-600 text-lg">Healthcare Management System</p>
-      </div>
-      <Card className="shadow-ayuu-lg border-0 bg-white">
-        <CardHeader className="text-center space-y-2 pb-6">
-          <CardTitle className="text-2xl font-bold text-gray-900">Sign In</CardTitle>
-          <CardDescription className="text-gray-600">Enter your username/email and password</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {error && (
-              <Alert variant="destructive" className="border-red-200 bg-red-50">
-                <AlertDescription className="text-red-800">{error}</AlertDescription>
-              </Alert>
-            )}
 
-            <div className="space-y-2">
-              <Label htmlFor="username" className="text-sm font-medium text-gray-900">
-                Username or Email
-              </Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                  className="pl-10 h-12 bg-blue-50 border-gray-300 focus:border-primary focus:ring-primary/20"
-                  placeholder="admin@ayuu.com"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium text-gray-900">
-                Password
-              </Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="pl-10 pr-10 h-12 border-gray-300 focus:border-primary focus:ring-primary/20"
-                  placeholder="123123"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8 text-gray-400 hover:text-gray-600"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </Button>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <Label className="text-sm font-medium text-gray-900">Select Your Role</Label>
-              <div className="grid gap-3">
-                {roles.map((roleOption) => (
-                  <div
-                    key={roleOption.value}
-                    className={cn(
-                      "relative flex cursor-pointer rounded-lg border p-4 transition-all duration-200 hover:shadow-md",
-                      role === roleOption.value
-                        ? "border-primary bg-blue-50 shadow-md ring-2 ring-primary/20"
-                        : "border-gray-200 bg-white hover:border-gray-300",
-                    )}
-                    onClick={() => setRole(roleOption.value)}
-                  >
-                    <div className="flex items-center">
-                      <input
-                        type="radio"
-                        name="role"
-                        value={roleOption.value}
-                        checked={role === roleOption.value}
-                        onChange={(e) => setRole(e.target.value)}
-                        className="h-4 w-4 text-primary focus:ring-primary border-gray-300"
-                      />
-                    </div>
-                    <div className="ml-3 flex-1">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-sm font-medium text-gray-900">{roleOption.label}</h3>
-                      </div>
-                      <p className="text-xs text-gray-600 mt-1">{roleOption.description}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full h-12 bg-primary hover:bg-primary-hover text-white font-medium shadow-ayuu-lg hover:shadow-ayuu transition-all duration-200 rounded-lg"
-              disabled={isLoading || !role}
+        <div className="grid gap-3">
+          <div className="flex items-center">
+            <Label htmlFor="password">Password</Label>
+            <a
+              href="#"
+              className="ml-auto text-sm underline-offset-4 hover:underline"
             >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
-                </>
-              ) : (
-                "Sign In"
-              )}
-            </Button>
-          </form>
-
-          <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-100">
-            <p className="text-sm font-medium text-gray-900 mb-3">Demo Credentials:</p>
-            <div className="space-y-2 text-sm text-gray-600">
-              <div className="flex justify-between">
-                <span className="font-medium">Staff:</span>
-                <span>staff1 / password123</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Doctor:</span>
-                <span>doctor1 / password123</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Admin:</span>
-                <span>admin1 / password123</span>
-              </div>
-            </div>
+              Forgot your password?
+            </a>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+          <div className="relative">
+            <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="pl-10 pr-10"
+              placeholder="123123"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid gap-3">
+          <Label>Select Your Role</Label>
+          <div className="grid gap-2">
+            {roles.map((roleOption) => (
+              <div
+                key={roleOption.value}
+                className={cn(
+                  "relative flex cursor-pointer rounded-lg border p-3 transition-all duration-200 hover:shadow-sm",
+                  role === roleOption.value
+                    ? "border-primary bg-primary/5 shadow-sm ring-2 ring-primary/20"
+                    : "border-border bg-background hover:border-border/50",
+                )}
+                onClick={() => setRole(roleOption.value)}
+              >
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    name="role"
+                    value={roleOption.value}
+                    checked={role === roleOption.value}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="h-4 w-4 text-primary focus:ring-primary border-border"
+                  />
+                </div>
+                <div className="ml-3 flex-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-medium">{roleOption.label}</h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{roleOption.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <Button type="submit" className="w-full" disabled={!role}>
+          Sign In
+        </Button>
+      </div>
+
+      <div className="text-center text-sm">
+        Don&apos;t have an account?{" "}
+        <a href="/auth/sign-up" className="underline underline-offset-4">
+          Sign up
+        </a>
+      </div>
+    </form>
   )
 }

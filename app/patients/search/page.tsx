@@ -16,24 +16,46 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Home, Search } from "lucide-react"
+import { Home, Search, Calendar, Clock } from "lucide-react"
 import { samplePatients } from "@/lib/sample-data"
+import { useAuth } from "@/components/auth/AuthProvider"
+import { useToast } from "@/hooks/use-toast"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+interface Patient {
+  id: string
+  patientId: string
+  fullName: string
+  email: string
+  phone: string
+  dateOfBirth: Date
+}
 
 export default function PatientSearchPage() {
-  const [user, setUser] = useState(null)
+  const { user, loading } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
-  const [searchResults, setSearchResults] = useState([])
+  const [searchResults, setSearchResults] = useState<Patient[]>([])
+  const [rescheduleModal, setRescheduleModal] = useState<{
+    isOpen: boolean
+    patient: Patient | null
+  }>({ isOpen: false, patient: null })
+  const [newDate, setNewDate] = useState("")
+  const [newTime, setNewTime] = useState("")
   const router = useRouter()
+  const { toast } = useToast()
 
-  useEffect(() => {
-    const userData = localStorage.getItem("user")
-    if (userData) {
-      setUser(JSON.parse(userData))
-    } else {
-      router.push("/auth/sign-in")
-    }
-  }, [router])
+  const timeSlots = [
+    "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+    "12:00 PM", "12:30 PM", "01:00 PM", "01:30 PM", "02:00 PM", "02:30 PM",
+    "03:00 PM", "03:30 PM", "04:00 PM", "04:30 PM", "05:00 PM"
+  ]
+
+  if (loading || !user) {
+    return null // Global overlay or redirect will handle loading/auth
+  }
 
   const handleSearch = () => {
     if (!searchTerm.trim()) {
@@ -51,19 +73,36 @@ export default function PatientSearchPage() {
     setSearchResults(results)
   }
 
+  const openRescheduleModal = (patient: Patient) => {
+    setRescheduleModal({ isOpen: true, patient })
+    setNewDate("")
+    setNewTime("")
+  }
+
+  const closeRescheduleModal = () => {
+    setRescheduleModal({ isOpen: false, patient: null })
+  }
+
+  const handleReschedule = () => {
+    if (!newDate || !newTime) {
+      toast({
+        title: "⚠️ Missing Information",
+        description: "Please select both date and time",
+        variant: "destructive"
+      })
+      return
+    }
+
+    toast({
+      title: "✅ Appointment Rescheduled",
+      description: `${rescheduleModal.patient?.fullName}'s appointment rescheduled to ${newDate} at ${newTime}`,
+    })
+
+    closeRescheduleModal()
+  }
+
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen)
   const closeSidebar = () => setSidebarOpen(false)
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-gray-600 font-medium">Loading...</p>
-        </div>
-      </div>
-    )
-  }
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 overflow-hidden">
@@ -122,6 +161,7 @@ export default function PatientSearchPage() {
                           <TableHead>Email</TableHead>
                           <TableHead>Phone</TableHead>
                           <TableHead>Date of Birth</TableHead>
+                          <TableHead>Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -132,6 +172,17 @@ export default function PatientSearchPage() {
                             <TableCell>{patient.email}</TableCell>
                             <TableCell>{patient.phone}</TableCell>
                             <TableCell>{patient.dateOfBirth.toLocaleDateString()}</TableCell>
+                            <TableCell>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openRescheduleModal(patient)}
+                                className="flex items-center gap-1"
+                              >
+                                <Calendar className="h-3 w-3" />
+                                Reschedule
+                              </Button>
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -147,6 +198,60 @@ export default function PatientSearchPage() {
           </div>
         </div>
       </div>
+
+      {/* Reschedule Modal */}
+      <Dialog open={rescheduleModal.isOpen} onOpenChange={closeRescheduleModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-[#0F52BA]">Reschedule Appointment</DialogTitle>
+            <div className="text-sm text-gray-600">
+              <p><strong>Patient:</strong> {rescheduleModal.patient?.fullName}</p>
+              <p><strong>Patient ID:</strong> {rescheduleModal.patient?.patientId}</p>
+            </div>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="newDate">New Date</Label>
+              <Input
+                id="newDate"
+                type="date"
+                value={newDate}
+                onChange={(e) => setNewDate(e.target.value)}
+                min={new Date().toISOString().split('T')[0]}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="newTime">New Time</Label>
+              <Select value={newTime} onValueChange={setNewTime}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select time slot" />
+                </SelectTrigger>
+                <SelectContent className="bg-white">
+                  {timeSlots.map((time) => (
+                    <SelectItem key={time} value={time}>
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-3 w-3" />
+                        {time}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={closeRescheduleModal}>
+              Cancel
+            </Button>
+            <Button onClick={handleReschedule} className="bg-[#4169E1] hover:bg-[#000080]">
+              Reschedule
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
