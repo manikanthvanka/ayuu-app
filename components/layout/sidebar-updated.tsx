@@ -3,7 +3,7 @@
 import type React from "react"
 import { Home, UserPlus, Calendar, Users, RotateCcw, LogOut, Stethoscope, Search, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { SettingsDropdown } from "@/components/settings/settings-dropdown"
+import SettingsDropdown from "../SettingsDropdown"
 
 type UserRole = "admin" | "doctor" | "staff" | "patient"
 type ViewMode =
