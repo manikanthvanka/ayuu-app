@@ -43,3 +43,4 @@ export function Calendar({
   }
   return <DayPicker {...dayPickerProps} />;
 }
+export default Calendar

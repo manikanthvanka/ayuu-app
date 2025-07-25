@@ -8,8 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import LoadingSpinner from '../ui/loading-spinner';
 
 interface PatientRegistrationProps {
   onSubmit: (patientData: any) => void;

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { LoadingOverlay } from "@/components/ui/loading-overlay"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import LoadingSpinner from "@/components/ui/loading-spinner"
 import { SmartVitalsModal } from "@/components/vitals/smart-vitals-modal"
 import { sampleAppointments } from "@/lib/sample-data"
 import type { Appointment } from "@/lib/types"

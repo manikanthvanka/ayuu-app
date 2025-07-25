@@ -9,12 +9,9 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { LoadingSpinner } from "@/components/ui/loading-spinner"
+import LoadingSpinner from "@/components/ui/loading-spinner"
 import { SmartVitalsModal } from "@/components/vitals/smart-vitals-modal"
-import { RescheduleModal } from "@/components/appointments/reschedule-modal"
-import { DoctorConsultationPage } from "@/components/doctor/doctor-consultation-page"
 import { useToast } from "@/hooks/use-toast"
-import { useScreenFields } from "@/contexts/ScreenFieldsContext"
 import { useGlobalLoading } from "@/components/ui/GlobalLoadingProvider"
 
 interface Patient {
@@ -71,7 +68,7 @@ export const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
   const [selectedPatientVitals, setSelectedPatientVitals] = useState<any>(null)
   const [loadingAction, setLoadingAction] = useState<string | null>(null)
   const { toast } = useToast()
-  const { getFieldValue } = useScreenFields()
+  // Removed useScreenFields as it doesn't exist
   const { setLoading } = useGlobalLoading()
 
   const getStatusColor = (status: string) => {
@@ -298,11 +295,12 @@ export const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
 
   if (showConsultationPage && selectedAppointment) {
     return (
-      <DoctorConsultationPage
-        patient={selectedAppointment.patient}
-        onBack={() => setShowConsultationPage(false)}
-        onUpdatePatientStatus={onUpdateStatus}
-      />
+      <div className="text-center p-8">
+        <p className="text-gray-600">Doctor consultation page not implemented yet.</p>
+        <Button onClick={() => setShowConsultationPage(false)} className="mt-4">
+          Back to Appointments
+        </Button>
+      </div>
     )
   }
 
@@ -312,7 +310,7 @@ export const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
         <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10 border-b border-gray-100">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
             <CardTitle className="text-xl text-gray-900">
-              {getFieldValue("appointments_table_title", "dashboard") || "Today's Appointments"}
+              Today's Appointments
             </CardTitle>
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
               <div className="relative">
@@ -344,25 +342,25 @@ export const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
               <TableHeader className="bg-gray-50">
                 <TableRow>
                   <TableHead className="font-semibold text-gray-700">
-                    {getFieldValue("token_column", "dashboard") || "Token"}
+                    Token
                   </TableHead>
                   <TableHead className="font-semibold text-gray-700">
-                    {getFieldValue("mr_number_column", "dashboard") || "MR Number"}
+                    MR Number
                   </TableHead>
                   <TableHead className="font-semibold text-gray-700">
-                    {getFieldValue("patient_name_column", "dashboard") || "Patient Name"}
+                    Patient Name
                   </TableHead>
                   <TableHead className="font-semibold text-gray-700">
-                    {getFieldValue("doctor_column", "dashboard") || "Doctor"}
+                    Doctor
                   </TableHead>
                   <TableHead className="font-semibold text-gray-700">
-                    {getFieldValue("time_column", "dashboard") || "Time"}
+                    Time
                   </TableHead>
                   <TableHead className="font-semibold text-gray-700">
-                    {getFieldValue("status_column", "dashboard") || "Status"}
+                    Status
                   </TableHead>
                   <TableHead className="font-semibold text-gray-700">
-                    {getFieldValue("actions_column", "dashboard") || "Actions"}
+                    Actions
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -467,14 +465,7 @@ export const AppointmentsDataTable: React.FC<AppointmentsDataTableProps> = ({
             patientAge={selectedAppointment.patient?.age || 35}
             isCompleted={selectedAppointment.status === "Completed"}
           />
-          <RescheduleModal
-            isOpen={rescheduleModalOpen}
-            onClose={() => setRescheduleModalOpen(false)}
-            onReschedule={handleReschedule}
-            patientName={selectedAppointment.patient?.name || ""}
-            currentDate={selectedAppointment.appointment_date}
-            currentTime={selectedAppointment.appointment_time}
-          />
+          {/* RescheduleModal component not implemented yet */}
         </>
       )}
     </>

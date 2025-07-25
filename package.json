@@ -6,7 +6,9 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "analyze": "ANALYZE=true npm run build",
+    "clean": "rm -rf .next && npm run dev"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -45,6 +47,7 @@
     "date-fns": "latest",
     "dayjs": "^1.11.13",
     "embla-carousel-react": "8.5.1",
+    "framer-motion": "^12.23.3",
     "input-otp": "1.4.1",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.454.0",
