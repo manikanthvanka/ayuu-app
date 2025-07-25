@@ -6,8 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
-  DialogClose,
+  DialogDescription
 } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,6 @@ import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { sampleDoctors, samplePatients } from "@/lib/sample-data";
 import type { User } from "@/lib/types";
-import { cn } from "@/lib/utils";
 import Calendar from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import AppointmentCard from "./appointment-card";
