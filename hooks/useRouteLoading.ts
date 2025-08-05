@@ -12,7 +12,7 @@ export function useRouteLoading() {
     if (prevPath.current !== pathname) {
       setLoading(true)
       // Simulate a short delay for demo; in real apps, you may want to listen for data fetching completion
-      setTimeout(() => setLoading(false), 800)
+      setTimeout(() => setLoading(false), 1)
       prevPath.current = pathname
     }
   }, [pathname, setLoading])

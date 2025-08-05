@@ -15,7 +15,6 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Home } from "lucide-react"
-import { useGlobalLoading } from "@/components/ui/GlobalLoadingProvider"
 import { EnhancedAppointmentsTable } from "@/components/dashboard/enhanced-appointments-table"
 import { useAuth } from "@/components/auth/AuthProvider"
 
@@ -28,7 +27,6 @@ export default function DashboardPage() {
     returnQueue: 0,
   })
   const router = useRouter()
-  const { setLoading } = useGlobalLoading()
 
   if (loading || !user) {
     return null // Global overlay or redirect will handle loading/auth

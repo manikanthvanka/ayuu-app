@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Stethoscope, Mail, Lock, Eye, EyeOff } from "lucide-react"
+import { Mail, Lock, Eye, EyeOff } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { signIn } from "@/lib/auth"
+import { signIn } from "@/lib/authx"
 import { useGlobalLoading } from "@/components/ui/GlobalLoadingProvider"
 import { useAuth } from "@/components/auth/AuthProvider"
 
@@ -43,24 +43,25 @@ export function SignInForm({
     e.preventDefault()
     setLoading(true)
     setError("")
-
     try {
-      // Simulate async operation
-      await new Promise((resolve) => setTimeout(resolve, 700)); // 700ms delay
-
-      const user = signIn(username, password, role)
-
-      if (user) {
+     const user = signIn(username, password)
+      user.then(() => {
         localStorage.setItem("user", JSON.stringify(user))
         setUser(user) // update context immediately
-        router.push("/dashboard")
-      } else {
-        setError("Invalid credentials or role")
+        router.push("/dashboard");
+        
+      })
+      .catch((err) => {
+        console.error(err)
+        setError(err)
         setLoading(false)
-      }
+      })
+     
     } catch (err) {
       setError("An error occurred during sign in")
       setLoading(false)
+    }finally{
+      setLoading(false);
     }
   }
 
