@@ -12,6 +12,9 @@ interface NavbarProps {
 }
 
 export function Navbar({ user, onToggleSidebar, sidebarOpen }: NavbarProps) {
+  const userString = JSON.stringify(user)
+  const userObj = JSON.parse(userString).user;
+  const fullName = userObj?.user_metadata?.full_name || "User"
   return (
     <nav className="h-16 bg-white border-b border-gray-200 px-4 flex items-center justify-between shadow-sm sticky top-0 z-20">
       <div className="flex items-center gap-4">
@@ -41,6 +44,9 @@ export function Navbar({ user, onToggleSidebar, sidebarOpen }: NavbarProps) {
       {/* Right Side Actions */}
       <div className="flex items-center gap-3">
         {/* Notifications */}
+        <p className="text-sm text-gray-600 leading-none">
+        {fullName}
+        </p>
         <Button variant="ghost" size="icon" className="hover:bg-gray-100 relative">
           <Bell className="h-5 w-5 text-gray-700" />
           <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full text-xs flex items-center justify-center">

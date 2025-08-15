@@ -29,7 +29,7 @@ export function Sidebar({ user, isOpen, onClose }: SidebarProps) {
 
   const handleLogout = () => {
     localStorage.removeItem("user")
-    router.push("/auth/sign-in")
+    router.push("/")
   }
 
   const handleLinkClick = () => {

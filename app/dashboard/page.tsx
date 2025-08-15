@@ -19,7 +19,7 @@ import { EnhancedAppointmentsTable } from "@/components/dashboard/enhanced-appoi
 import { useAuth } from "@/components/auth/AuthProvider"
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth()
+  const { user, loading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [appointmentCounts, setAppointmentCounts] = useState({
     active: 3,
@@ -27,7 +27,6 @@ export default function DashboardPage() {
     returnQueue: 0,
   })
   const router = useRouter()
-
   if (loading || !user) {
     return (
       <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 overflow-hidden">

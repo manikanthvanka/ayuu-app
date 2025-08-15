@@ -22,13 +22,13 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"form">
   const [roles, setRoles] = useState<Role[]>([])
   const [mounted, setMounted] = useState(false)
   const [loadingRoles, setLoadingRoles] = useState(true)
-
   const router = useRouter()
   const { setLoading } = useGlobalLoading()
   const { setUser } = useAuth()
 
   // Fetch roles once on mount
   useEffect(() => {
+    localStorage.removeItem("user") // Clear any existing user data
     const fetchRoles = async () => {
       try {
         setLoadingRoles(true)
@@ -49,7 +49,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"form">
   if (!mounted) return null
 
   // Show loader if roles are still loading
-  if (loadingRoles) return <div>Loading roles...</div>
+  if (loadingRoles) return <div>Loading...</div>
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -64,15 +64,15 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"form">
     const loginFormData: LoginFormData = { username, password, role }
 
     try {
-      const signInResponse = await signIn(loginFormData)
+      const signInResponse = await signIn(loginFormData);
+      localStorage.setItem("user", JSON.stringify(signInResponse));
       setUser(signInResponse) // update AuthContext
       router.push("/dashboard")
     } catch (err: any) {
       console.error("❌ Login error:", err.message)
       setError(err.message)
-    } finally {
       setLoading(false)
-    }
+    } 
   }
 
   return (
