@@ -1,8 +1,6 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,76 +8,83 @@ import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Mail, Lock, Eye, EyeOff } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { signIn } from "@/lib/authx"
+import { signIn, getRoles } from "@/lib/authx"
 import { useGlobalLoading } from "@/components/ui/GlobalLoadingProvider"
 import { useAuth } from "@/components/auth/AuthProvider"
+import { LoginFormData, Role } from "@/lib/types"
 
-export function SignInForm({
-  className,
-  ...props
-}: React.ComponentProps<"form">) {
+export function SignInForm({ className, ...props }: React.ComponentProps<"form">) {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [role, setRole] = useState("")
   const [error, setError] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [lottieData, setLottieData] = useState<any>(null)
+  const [roles, setRoles] = useState<Role[]>([])
+  const [mounted, setMounted] = useState(false)
+  const [loadingRoles, setLoadingRoles] = useState(true)
+
   const router = useRouter()
   const { setLoading } = useGlobalLoading()
   const { setUser } = useAuth()
 
-  // Load Lottie animation
+  // Fetch roles once on mount
   useEffect(() => {
-    fetch("/lottie/signin-animation.json")
-      .then((res) => res.json())
-      .then(setLottieData)
-      .catch((error) => {
-        console.error("Failed to load Lottie animation:", error)
-        setLottieData(null)
-      })
+    const fetchRoles = async () => {
+      try {
+        setLoadingRoles(true)
+        const fetchedRoles = await getRoles()
+        setRoles(fetchedRoles)
+      } catch (err: any) {
+        console.error("❌ Failed to fetch roles:", err.message)
+        setError("Failed to load roles. Please refresh.")
+      } finally {
+        setLoadingRoles(false)
+        setMounted(true) // mark mounted after roles fetch
+      }
+    }
+    fetchRoles()
   }, [])
+
+  // Prevent rendering on server to avoid hydration mismatch
+  if (!mounted) return null
+
+  // Show loader if roles are still loading
+  if (loadingRoles) return <div>Loading roles...</div>
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!role) {
+      setError("Please select a role")
+      return
+    }
+
     setLoading(true)
     setError("")
+
+    const loginFormData: LoginFormData = { username, password, role }
+
     try {
-     const user = signIn(username, password)
-      user.then(() => {
-        localStorage.setItem("user", JSON.stringify(user))
-        setUser(user) // update context immediately
-        router.push("/dashboard");
-        
-      })
-      .catch((err) => {
-        console.error(err)
-        setError(err)
-        setLoading(false)
-      })
-     
-    } catch (err) {
-      setError("An error occurred during sign in")
+      const signInResponse = await signIn(loginFormData)
+      setUser(signInResponse) // update AuthContext
+      router.push("/dashboard")
+    } catch (err: any) {
+      console.error("❌ Login error:", err.message)
+      setError(err.message)
+    } finally {
       setLoading(false)
-    }finally{
-      setLoading(false);
     }
   }
 
-  const roles = [
-    { value: "staff", label: "Staff", description: "Manage patients and appointments" },
-    { value: "doctor", label: "Doctor", description: "Conduct consultations and treatments" },
-    { value: "admin", label: "Admin", description: "Full system administration access" },
-  ]
-
   return (
     <form className={cn("flex flex-col gap-6", className)} onSubmit={handleSubmit} {...props}>
-    {error && (
+      {error && (
         <Alert variant="destructive">
           <AlertDescription className="text-sm">{error}</AlertDescription>
         </Alert>
       )}
 
       <div className="grid gap-6">
+        {/* Username */}
         <div className="grid gap-3">
           <Label htmlFor="username">Username or Email</Label>
           <div className="relative">
@@ -96,15 +101,10 @@ export function SignInForm({
           </div>
         </div>
 
+        {/* Password */}
         <div className="grid gap-3">
           <div className="flex items-center">
             <Label htmlFor="password">Password</Label>
-            <a
-              href="#"
-              className="ml-auto text-sm underline-offset-4 hover:underline"
-            >
-              Forgot your password?
-            </a>
           </div>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
@@ -129,33 +129,32 @@ export function SignInForm({
           </div>
         </div>
 
+        {/* Role selection */}
         <div className="grid gap-3">
           <Label>Select Your Role</Label>
           <div className="grid gap-2">
             {roles.map((roleOption) => (
               <div
-                key={roleOption.value}
+                key={roleOption.id}
                 className={cn(
                   "relative flex cursor-pointer rounded-lg border p-3 transition-all duration-200 hover:shadow-sm",
-                  role === roleOption.value
+                  role === roleOption.id
                     ? "border-primary bg-primary/5 shadow-sm ring-2 ring-primary/20"
-                    : "border-border bg-background hover:border-border/50",
+                    : "border-border bg-background hover:border-border/50"
                 )}
-                onClick={() => setRole(roleOption.value)}
+                onClick={() => setRole(roleOption.id)}
               >
-                <div className="flex items-center">
-                  <input
-                    type="radio"
-                    name="role"
-                    value={roleOption.value}
-                    checked={role === roleOption.value}
-                    onChange={(e) => setRole(e.target.value)}
-                    className="h-4 w-4 text-primary focus:ring-primary border-border"
-                  />
-                </div>
-                <div className="ml-3 flex-1">
+                <input
+                  type="radio"
+                  name="role"
+                  value={roleOption.id}
+                  checked={role === roleOption.id}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-primary focus:ring-primary border-border"
+                />
+                <div className="ml-8 flex-1">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium">{roleOption.label}</h3>
+                    <h3 className="text-sm font-medium">{roleOption.role_name}</h3>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">{roleOption.description}</p>
                 </div>
@@ -164,12 +163,13 @@ export function SignInForm({
           </div>
         </div>
 
+        {/* Submit */}
         <Button type="submit" className="w-full" disabled={!role}>
           Sign In
         </Button>
       </div>
 
-      <div className="text-center text-sm">
+      <div className="text-center text-sm mt-2">
         Don&apos;t have an account?{" "}
         <a href="/auth/sign-up" className="underline underline-offset-4">
           Sign up

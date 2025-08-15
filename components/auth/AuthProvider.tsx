@@ -1,6 +1,6 @@
 "use client"
 import React, { createContext, useContext, useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
 interface AuthContextType {
   user: any
@@ -18,16 +18,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     const userData = localStorage.getItem("user")
     if (userData) {
-      setUser(JSON.parse(userData))
+      try {
+        setUser(JSON.parse(userData))
+        setLoading(false)
+      } catch (error) {
+        console.error("Error parsing user data:", error)
+        setLoading(false)
+      }
     } else {
-      router.push("/auth/sign-in")
+      setLoading(false)
     }
-    setLoading(false)
-  }, [router])
+  }, [pathname, router])
 
   return (
     <AuthContext.Provider value={{ user, loading, setUser }}>
@@ -38,4 +44,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   return useContext(AuthContext)
-} 
+}

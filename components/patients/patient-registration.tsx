@@ -82,8 +82,8 @@ const PatientRegistration: React.FC<PatientRegistrationProps> = ({ onSubmit, onB
     e.preventDefault();
     setLoading(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    // Simulate API call - reduced delay for better UX
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     const mrNumber = generateMRNumber();
     setGeneratedMRNumber(mrNumber);

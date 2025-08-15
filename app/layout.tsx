@@ -6,6 +6,7 @@ import "./globals.css"
 import { GlobalLoadingProvider } from "@/components/ui/GlobalLoadingProvider"
 import { AuthProvider } from "@/components/auth/AuthProvider"
 import { ScreenFieldsProvider } from "@/contexts/ScreenFieldsContext"
+import { RouteLoadingListener } from "@/components/ui/route-loading-listener"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -26,6 +27,7 @@ export default function RootLayout({
           <AuthProvider>
             <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
               <ScreenFieldsProvider>
+                <RouteLoadingListener />
                 {children}
               </ScreenFieldsProvider>
             </ThemeProvider>

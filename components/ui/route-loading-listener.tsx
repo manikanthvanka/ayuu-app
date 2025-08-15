@@ -18,19 +18,19 @@ export function RouteLoadingListener() {
     setLoading(true);
     
     // Optimized loading durations based on route complexity
-    let loadingDuration = 300; // Reduced default duration
+    let loadingDuration = 200; // Reduced default duration
     
     // Shorter loading for optimized pages
     if (pathname.includes('/patients/search')) {
-      loadingDuration = 400; // Reduced from 800ms
+      loadingDuration = 300; // Reduced loading time
     } else if (pathname.includes('/dashboard')) {
-      loadingDuration = 300; // Reduced from 600ms
+      loadingDuration = 150; // Very short loading for dashboard
     } else if (pathname.includes('/queue')) {
-      loadingDuration = 400; // Reduced from 700ms
+      loadingDuration = 300; // Reduced loading time
     } else if (pathname.includes('/tracking')) {
-      loadingDuration = 400; // Reduced from 700ms
+      loadingDuration = 300; // Reduced loading time
     } else if (pathname.includes('/patients/register')) {
-      loadingDuration = 200; // Fast loading for registration
+      loadingDuration = 50; // Ultra-fast loading for registration
     }
     
     // Hide loading after the determined delay
@@ -41,6 +41,7 @@ export function RouteLoadingListener() {
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
+        setLoading(false); // Ensure loading is cleared on unmount
       }
     };
   }, [pathname, setLoading]);

@@ -38,18 +38,10 @@ export default function SignInPage() {
       <div className="bg-gradient-to-br from-primary to-primary-hover relative hidden lg:flex items-center justify-center p-8">
         <div className="text-center text-white max-w-md">
           <div className="mb-8">
-            {lottieData ? (
-              <Player
-                autoplay
-                loop
-                animationData={lottieData}
-                style={{ height: 300, width: 300 }}
-              />
-            ) : (
+            
               <div className="h-64 w-64 mx-auto bg-white/20 rounded-full flex items-center justify-center">
                 <Stethoscope className="h-32 w-32 text-white/80" />
               </div>
-            )}
           </div>
           
           <h2 className="text-4xl font-bold mb-4">Welcome to Ayuu</h2>
