@@ -86,7 +86,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"form">
       <div className="grid gap-6">
         {/* Username */}
         <div className="grid gap-3">
-          <Label htmlFor="username">Username or Email</Label>
+          <Label htmlFor="username">Username</Label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
             <Input
@@ -96,7 +96,7 @@ export function SignInForm({ className, ...props }: React.ComponentProps<"form">
               onChange={(e) => setUsername(e.target.value)}
               required
               className="pl-10"
-              placeholder="admin@ayuu.com"
+              placeholder="admin"
             />
           </div>
         </div>

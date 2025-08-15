@@ -11,7 +11,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { CheckCircle, XCircle, Eye, EyeOff, Mail, Lock } from "lucide-react"
 import { checkUsernameAvailability, signUp, getRoles, checkEmailAvailability } from "@/lib/authx"
 import { Role } from "@/lib/types"
-import { cn } from "@/lib/utils"
+import { Stethoscope } from "lucide-react"
+import { useGlobalLoading } from "../ui/GlobalLoadingProvider"
 
 export function SignUpForm() {
   const [formData, setFormData] = useState({
@@ -118,8 +119,19 @@ export function SignUpForm() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>Sign Up</CardTitle>
-        <CardDescription>Create a new account to access the system</CardDescription>
+        <CardTitle>
+         
+  <div className="flex justify-center items-center gap-2 w-full">
+  <a href="/" className="flex items-center gap-2 font-medium">
+    <div className="bg-primary text-primary-foreground flex h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 items-center justify-center rounded-md">
+      <Stethoscope className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10" />
+    </div>
+    <span className="text-lg sm:text-xl md:text-2xl ">Ayuu</span>
+  </a>
+</div>
+
+        </CardTitle>
+        <CardDescription >Create a new account to access the system</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
