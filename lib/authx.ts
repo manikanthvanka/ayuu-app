@@ -7,7 +7,9 @@ export async function signIn(loginFormData: LoginFormData) {
   .from("profiles")
   .select(`
     email,
-    role_id  `)
+    role_id,
+    full_name
+    `)
   .eq("username", loginFormData.username)
   .eq("role_id", loginFormData.role) // ✅ direct filter
   .single();
@@ -26,7 +28,8 @@ export async function signIn(loginFormData: LoginFormData) {
     console.error("❌ Login error:", error.message);
     throw error;
   }
-  data.user.role = profile.role_id; // Attach role to user object
+  data.user.role = profile.role_id; 
+  data.user.user_metadata.full_name = profile.full_name; // ✅ attach full_name manually
   return data;
 }
 

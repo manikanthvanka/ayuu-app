@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,7 +12,6 @@ import { CheckCircle, XCircle, Eye, EyeOff, Mail, Lock } from "lucide-react"
 import { checkUsernameAvailability, signUp, getRoles, checkEmailAvailability } from "@/lib/authx"
 import { Role } from "@/lib/types"
 import { Stethoscope } from "lucide-react"
-import { useGlobalLoading } from "../ui/GlobalLoadingProvider"
 
 export function SignUpForm() {
   const [formData, setFormData] = useState({
@@ -24,61 +23,65 @@ export function SignUpForm() {
     confirmPassword: "",
     role: "",
   })
+
   const [roles, setRoles] = useState<Role[]>([])
-  const [mounted, setMounted] = useState(false)
+  const [loadingRoles, setLoadingRoles] = useState(true)
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null)
   const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null)
   const [apiResponse, setApiResponse] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [showPasswordFields, setShowPasswordFields] = useState({ password: false, confirm: false })
+
+  const usernameTimeout = useRef<NodeJS.Timeout | null>(null)
+  const emailTimeout = useRef<NodeJS.Timeout | null>(null)
   const router = useRouter()
 
+  // Fetch roles on mount
   useEffect(() => {
-    const fetchRoles = async () => {
-      try {
-        const fetchedRoles = await getRoles()
-        setRoles(fetchedRoles)
-      } catch (err: any) {
+    getRoles()
+      .then((fetchedRoles) => setRoles(fetchedRoles))
+      .catch((err: any) => {
         console.error("❌ Failed to fetch roles:", err.message)
         setApiResponse("Failed to load roles")
-      } finally {
-        setMounted(true)
-      }
-    }
-
-    fetchRoles()
+      })
+      .finally(() => setLoadingRoles(false))
   }, [])
 
-  if (!mounted) return null // prevents SSR/client mismatch
-
-  const checkUsername = async (username: string) => {
-    if (username.length >= 3) {
-      const available = await checkUsernameAvailability(username)
-      setUsernameAvailable(available)
-    } else {
-      setUsernameAvailable(null)
-    }
+  // Debounced username check
+  const checkUsernameDebounced = (username: string) => {
+    if (usernameTimeout.current) clearTimeout(usernameTimeout.current)
+    usernameTimeout.current = setTimeout(async () => {
+      if (username.length >= 3) {
+        const available = await checkUsernameAvailability(username)
+        setUsernameAvailable(available)
+      } else {
+        setUsernameAvailable(null)
+      }
+    }, 500)
   }
 
-  const checkEmail = async (email: string) => {
-    if (email && email.includes("@") && email.length > 5) {
-      try {
-        const available = await checkEmailAvailability(email)
-        setEmailAvailable(available)
-      } catch (err) {
-        console.error("Email check failed", err)
+  // Debounced email check
+  const checkEmailDebounced = (email: string) => {
+    if (emailTimeout.current) clearTimeout(emailTimeout.current)
+    emailTimeout.current = setTimeout(async () => {
+      if (email && email.includes("@") && email.length > 5) {
+        try {
+          const available = await checkEmailAvailability(email)
+          setEmailAvailable(available)
+        } catch (err) {
+          console.error("Email check failed", err)
+          setEmailAvailable(null)
+        }
+      } else {
         setEmailAvailable(null)
       }
-    } else {
-      setEmailAvailable(null)
-    }
+    }, 500)
   }
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
-    if (field === "username") checkUsername(value)
-    if (field === "email") checkEmail(value)
+    if (field === "username") checkUsernameDebounced(value)
+    if (field === "email") checkEmailDebounced(value)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -107,36 +110,38 @@ export function SignUpForm() {
     try {
       console.log("Submitting sign up form with data:", formData)
       const response = await signUp(formData)
-      setApiResponse(response.id ? "Sign up successful. Please check your email to confirm" : "Sign up failed");
+      setApiResponse(response.id ? "Sign up successful. Please check your email to confirm" : "Sign up failed")
+      if (response.id) {
+        // Optionally redirect to login page after successful signup
+        // router.push("/login")
+      }
     } catch (err) {
       console.error(err)
-      setApiResponse(err instanceof Error ? err.message : "An unexpected error occurred");
+      setApiResponse(err instanceof Error ? err.message : "An unexpected error occurred")
     } finally {
       setIsLoading(false)
     }
   }
 
+  if (loadingRoles) return <p className="text-center mt-10">Loading roles...</p>
+
   return (
-    <Card className="w-full max-w-md">
+    <Card className="w-full max-w-md mx-auto">
       <CardHeader>
         <CardTitle>
-         
-  <div className="flex justify-center items-center gap-2 w-full">
-  <a href="/" className="flex items-center gap-2 font-medium">
-    <div className="bg-primary text-primary-foreground flex h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 items-center justify-center rounded-md">
-      <Stethoscope className="h-6 w-6 sm:h-8 sm:w-8 md:h-10 md:w-10" />
-    </div>
-    <span className="text-lg sm:text-xl md:text-2xl ">Ayuu</span>
-  </a>
-</div>
-
+          <div className="flex justify-center items-center gap-2 w-full">
+            <a href="/" className="flex items-center gap-2 font-medium">
+              <div className="bg-primary text-primary-foreground flex h-12 w-12 items-center justify-center rounded-md">
+                <Stethoscope className="h-8 w-8" />
+              </div>
+              <span className="text-xl">Ayuu</span>
+            </a>
+          </div>
         </CardTitle>
-        <CardDescription >Create a new account to access the system</CardDescription>
+        <CardDescription>Create a new account to access the system</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
-         
-
           {/* Email */}
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
@@ -152,11 +157,7 @@ export function SignUpForm() {
               />
               {emailAvailable !== null && (
                 <div className="absolute right-2 top-2">
-                  {emailAvailable ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                  ) : (
-                    <XCircle className="h-5 w-5 text-red-500" />
-                  )}
+                  {emailAvailable ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
                 </div>
               )}
             </div>
@@ -193,11 +194,7 @@ export function SignUpForm() {
               />
               {usernameAvailable !== null && (
                 <div className="absolute right-2 top-2">
-                  {usernameAvailable ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                  ) : (
-                    <XCircle className="h-5 w-5 text-red-500" />
-                  )}
+                  {usernameAvailable ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-red-500" />}
                 </div>
               )}
             </div>
@@ -223,11 +220,7 @@ export function SignUpForm() {
           {/* Role */}
           <div className="space-y-2">
             <Label htmlFor="role">Role</Label>
-            <Select
-              value={formData.role}
-              onValueChange={(value) => handleInputChange("role", value)}
-              required
-            >
+            <Select value={formData.role} onValueChange={(value) => handleInputChange("role", value)} required>
               <SelectTrigger>
                 <SelectValue placeholder="Select your role" />
               </SelectTrigger>
@@ -248,7 +241,7 @@ export function SignUpForm() {
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
                 id="password"
-                type={showPassword ? "text" : "password"}
+                type={showPasswordFields.password ? "text" : "password"}
                 value={formData.password}
                 onChange={(e) => handleInputChange("password", e.target.value)}
                 required
@@ -259,9 +252,9 @@ export function SignUpForm() {
                 variant="ghost"
                 size="icon"
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8"
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() => setShowPasswordFields((prev) => ({ ...prev, password: !prev.password }))}
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPasswordFields.password ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </div>
           </div>
@@ -273,7 +266,7 @@ export function SignUpForm() {
               <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input
                 id="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
+                type={showPasswordFields.confirm ? "text" : "password"}
                 value={formData.confirmPassword}
                 onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
                 required
@@ -284,20 +277,22 @@ export function SignUpForm() {
                 variant="ghost"
                 size="icon"
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 h-8 w-8"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                onClick={() => setShowPasswordFields((prev) => ({ ...prev, confirm: !prev.confirm }))}
               >
-                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPasswordFields.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </div>
             {formData.confirmPassword && formData.password !== formData.confirmPassword && (
               <p className="text-sm text-red-600">Passwords do not match</p>
             )}
           </div>
- {apiResponse && (
-            <Alert variant={apiResponse.includes("success") ? "success" : "destructive"}>
+
+          {apiResponse && (
+            <Alert variant={apiResponse.includes("successful") ? "success" : "destructive"}>
               <AlertDescription>{apiResponse}</AlertDescription>
             </Alert>
           )}
+
           <Button type="submit" className="w-full" disabled={isLoading || !usernameAvailable || !emailAvailable}>
             {isLoading ? "Creating account..." : "Sign Up"}
           </Button>

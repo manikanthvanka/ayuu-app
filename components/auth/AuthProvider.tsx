@@ -21,19 +21,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
 
   useEffect(() => {
-    const userData = localStorage.getItem("user")
-    if (userData) {
-      try {
-        setUser(JSON.parse(userData))
-        setLoading(false)
-      } catch (error) {
-        console.error("Error parsing user data:", error)
-        setLoading(false)
-      }
-    } else {
-      setLoading(false)
+  const userData = localStorage.getItem("user");
+  if (userData) {
+    try {
+      setUser(JSON.parse(userData));
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
-  }, [pathname, router])
+  } else {
+    // Only set loading false, don't redirect yet
+    setLoading(false);
+  }
+}, []);
+
+useEffect(() => {
+  // Redirect only if user is null AND page requires authentication
+  if (!loading && !user && pathname !== "/" && pathname !== "/auth/sign-up") {
+    router.push("/");
+  }
+}, [user, loading, pathname, router]);
+
 
   return (
     <AuthContext.Provider value={{ user, loading, setUser }}>
