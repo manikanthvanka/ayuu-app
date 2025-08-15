@@ -1,42 +1,46 @@
 "use client"
 
 import * as React from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { Calendar as MantineCalendar, CalendarProps as MantineCalendarProps } from "@mantine/dates"
-import '@mantine/dates/styles.css';
-
+import { DayPicker } from "react-day-picker"
+import "react-day-picker/dist/style.css"
 import { cn } from "@/lib/utils"
 
-export type CalendarProps = Omit<MantineCalendarProps, 'value' | 'onChange'> & {
-  date?: Date | null;
-  onDateChange?: (date: Date | null) => void;
+export interface CalendarProps {
+  className?: string
+  mode?: "single" | "multiple" | "range"
+  selected?: Date | Date[] | { from: Date; to: Date } | undefined
+  onSelect?: (date: Date | undefined) => void
+  disabled?: (date: Date) => boolean
+  captionLayout?: "label" | "dropdown" | "dropdown-months" | "dropdown-years"
+  month?: Date
+  onMonthChange?: (month: Date) => void
+  required?: boolean
 }
 
-function Calendar({
+export function Calendar({
   className,
-  date,
-  onDateChange,
-  ...props
+  mode = "single",
+  selected,
+  onSelect,
+  disabled,
+  captionLayout = "dropdown",
+  month,
+  onMonthChange,
+  required,
 }: CalendarProps) {
-  const handleDateChange = (d: any) => {
-    if (typeof d === 'string') {
-      const parsed = new Date(d)
-      onDateChange?.(isNaN(parsed.getTime()) ? null : parsed)
-    } else {
-      onDateChange?.(d ?? null)
-    }
+  const dayPickerProps: any = {
+    mode,
+    selected,
+    onSelect,
+    disabled,
+    captionLayout,
+    month,
+    onMonthChange,
+    className: cn("rounded-md border p-3", className),
+  };
+  if (required && (mode === "range" || mode === "multiple")) {
+    dayPickerProps.required = true;
   }
-  return (
-    <MantineCalendar
-      className={cn("p-3", className)}
-      nextIcon={<ChevronRight className="h-4 w-4" />}
-      previousIcon={<ChevronLeft className="h-4 w-4" />}
-      date={date === null ? undefined : date}
-      onDateChange={handleDateChange}
-      {...props}
-    />
-  )
+  return <DayPicker {...dayPickerProps} />;
 }
-Calendar.displayName = "Calendar"
-
-export { Calendar }
+export default Calendar

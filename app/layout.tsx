@@ -4,13 +4,15 @@ import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
 import "./globals.css"
 import { GlobalLoadingProvider } from "@/components/ui/GlobalLoadingProvider"
+import { AuthProvider } from "@/components/auth/AuthProvider"
+import { ScreenFieldsProvider } from "@/contexts/ScreenFieldsContext"
+import { RouteLoadingListener } from "@/components/ui/route-loading-listener"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Ayuu - Healthcare Management System",
-  description: "Role-based patient slot booking system",
-    generator: 'v0.dev'
+  description: "Role-based patient slot booking system"
 }
 
 export default function RootLayout({
@@ -22,9 +24,14 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <GlobalLoadingProvider>
-          <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-            {children}
-          </ThemeProvider>
+          <AuthProvider>
+            <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+              <ScreenFieldsProvider>
+                <RouteLoadingListener />
+                {children}
+              </ScreenFieldsProvider>
+            </ThemeProvider>
+          </AuthProvider>
         </GlobalLoadingProvider>
       </body>
     </html>

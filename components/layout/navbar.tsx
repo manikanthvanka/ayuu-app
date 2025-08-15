@@ -49,15 +49,7 @@ export function Navbar({ user, onToggleSidebar, sidebarOpen }: NavbarProps) {
         </Button>
 
         {/* User Profile */}
-        <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50 border border-gray-200">
-          <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-            <span className="text-white font-semibold text-sm">{user.fullName.charAt(0).toUpperCase()}</span>
-          </div>
-          <div className="text-sm">
-            <p className="font-medium text-gray-900 leading-none">{user.fullName}</p>
-            <p className="text-xs text-gray-500 capitalize mt-1">{user.role}</p>
-          </div>
-        </div>
+        
       </div>
     </nav>
   )

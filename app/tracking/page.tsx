@@ -6,20 +6,16 @@ import { PatientStageTracking } from "@/components/tracking/patient-stage-tracki
 import { Sidebar } from "@/components/layout/sidebar"
 import { Navbar } from "@/components/layout/navbar"
 import type { User } from "@/lib/types"
+import { useAuth } from "@/components/auth/AuthProvider"
 
 export default function TrackingPage() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const router = useRouter()
 
-  useEffect(() => {
-    const userData = localStorage.getItem("user")
-    if (userData) {
-      setUser(JSON.parse(userData))
-    } else {
-      router.push("/auth/sign-in")
-    }
-  }, [router])
+  if (loading || !user) {
+    return null // Global overlay or redirect will handle loading/auth
+  }
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen)
@@ -31,17 +27,6 @@ export default function TrackingPage() {
 
   const handleBack = () => {
     router.push("/dashboard")
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-gray-600 font-medium">Loading...</p>
-        </div>
-      </div>
-    )
   }
 
   return (

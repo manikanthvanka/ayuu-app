@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button"
 import { UserPlus, CalendarPlus, Search } from "lucide-react"
 import { useRouter } from "next/navigation"
 import type { User } from "@/lib/types"
+import { BookAppointmentModal } from "@/components/appointments/book-appointment-modal"
+import React from "react"
+import { useScreenFields } from '@/contexts/ScreenFieldsContext'
 
 interface DashboardActionsProps {
   user: User
@@ -11,22 +14,17 @@ interface DashboardActionsProps {
 
 export function DashboardActions({ user }: DashboardActionsProps) {
   const router = useRouter()
+  const { getFieldValue } = useScreenFields()
 
   const staffAdminActions = [
     {
-      label: "Register Patient",
+      label: getFieldValue('register_patient_btn', 'dashboard'),
       icon: UserPlus,
       onClick: () => router.push("/patients/register"),
       className: "bg-emerald-500 hover:bg-emerald-600 text-white",
     },
     {
-      label: "Book Appointment",
-      icon: CalendarPlus,
-      onClick: () => router.push("/appointments/book"),
-      className: "bg-blue-500 hover:bg-blue-600 text-white",
-    },
-    {
-      label: "Patient Search",
+      label: getFieldValue('patient_search_btn', 'dashboard'),
       icon: Search,
       onClick: () => router.push("/patients/search"),
       className: "bg-purple-500 hover:bg-purple-600 text-white",
@@ -35,7 +33,7 @@ export function DashboardActions({ user }: DashboardActionsProps) {
 
   const doctorActions = [
     {
-      label: "Patient Search",
+      label: getFieldValue('patient_search_btn', 'dashboard'),
       icon: Search,
       onClick: () => router.push("/patients/search"),
       className: "bg-purple-500 hover:bg-purple-600 text-white",
@@ -59,6 +57,17 @@ export function DashboardActions({ user }: DashboardActionsProps) {
           </Button>
         )
       })}
+      {/* Book Appointment Modal - Only render for staff/admin */}
+      {user.role !== "doctor" && (
+        <BookAppointmentModal 
+          trigger={
+            <Button className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-blue-500 hover:bg-blue-600 text-white">
+              <CalendarPlus className="h-4 w-4" />
+              {getFieldValue('book_appointment_btn', 'dashboard')}
+            </Button>
+          }
+        />
+      )}
     </div>
   )
 }

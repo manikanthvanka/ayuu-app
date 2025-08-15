@@ -1,3 +1,24 @@
+
+export interface LoginFormData {
+  username: string
+  password: string
+  role: string
+}
+
+export interface RegFormData {
+  username: string
+  password: string
+  role: string
+  email: string
+  phone: string
+  fullName: string
+}
+
+export interface Role {
+  id: string
+  role_name: string
+  description: string
+}
 export interface User {
   id: string
   username: string

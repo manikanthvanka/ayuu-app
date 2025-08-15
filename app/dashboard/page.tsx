@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { DashboardCards } from "@/components/dashboard/dashboard-cards"
-import { AppointmentsTable } from "@/components/dashboard/appointments-table"
 import { DashboardActions } from "@/components/dashboard/dashboard-actions"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Navbar } from "@/components/layout/navbar"
@@ -16,11 +15,11 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { Home } from "lucide-react"
-import type { User } from "@/lib/types"
-import { useGlobalLoading } from "@/components/ui/GlobalLoadingProvider"
+import { EnhancedAppointmentsTable } from "@/components/dashboard/enhanced-appointments-table"
+import { useAuth } from "@/components/auth/AuthProvider"
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<User | null>(null)
+  const { user, loading } = useAuth()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [appointmentCounts, setAppointmentCounts] = useState({
     active: 3,
@@ -28,19 +27,16 @@ export default function DashboardPage() {
     returnQueue: 0,
   })
   const router = useRouter()
-  const { setLoading } = useGlobalLoading()
 
-  useEffect(() => {
-    setLoading(true)
-    const userData = localStorage.getItem("user")
-    if (userData) {
-      setUser(JSON.parse(userData))
-      setLoading(false)
-    } else {
-      setLoading(false)
-      router.push("/auth/sign-in")
-    }
-  }, [router, setLoading])
+  if (loading || !user) {
+    return (
+      <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50/30 overflow-hidden">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+    )
+  }
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen)
@@ -67,17 +63,6 @@ export default function DashboardPage() {
 
       return newCounts
     })
-  }
-
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
-        <div className="text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-gray-600 font-medium">Loading Dashboard...</p>
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -112,7 +97,7 @@ export default function DashboardPage() {
             <DashboardCards counts={appointmentCounts} />
 
             {/* Appointments Table */}
-            <AppointmentsTable userRole={user.role} onStatusUpdate={handleStatusUpdate} />
+            <EnhancedAppointmentsTable userRole={user.role} onStatusUpdate={handleStatusUpdate} />
           </div>
         </div>
       </div>
