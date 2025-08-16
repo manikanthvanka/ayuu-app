@@ -68,7 +68,8 @@ export async function getUserProfile(userId: string) {
 export async function getRoles() {
   const { data, error } = await supabase
     .from("roles")
-    .select("*");
+    .select("*")
+    .eq("status", 1);
 
   if (error) {
     console.error("❌ Get roles error:", error.message);
@@ -138,6 +139,7 @@ console.log(userId)
         phone: userData.phone,
         full_name: userData.fullName,
         role_id: userData.role,
+        status: 1
       })
       .single();
 

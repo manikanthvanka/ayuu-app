@@ -1,12 +1,11 @@
 "use client"
 import { Stethoscope } from "lucide-react"
 import { SignInForm } from "@/components/auth/sign-in-form"
-import Lottie from "lottie-react"
 import { useEffect, useState } from "react"
+import { motion } from "framer-motion"
 
 export default function SignInPage() {
    const [lottieData, setLottieData] = useState<any>(null)
-
   // Load Lottie animation
   useEffect(() => {
     fetch("/lottie/signin-animation.json")
@@ -39,20 +38,47 @@ export default function SignInPage() {
       </div>
     {/* Right side: Lottie illustration */}
       <div className="bg-gradient-to-br from-primary to-primary-hover relative hidden lg:flex items-center justify-center p-8">
-        <div className="text-center text-white max-w-md">
-          {lottieData ? (
-            <Lottie animationData={lottieData} loop={true} className="h-64 w-64 mx-auto" />
-          ) : (
-            <div className="h-64 w-64 mx-auto bg-white/20 rounded-full flex items-center justify-center">
-              <Stethoscope className="h-32 w-32 text-white/80" />
+       <motion.div
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8 }}
+          className="text-center"
+        >
+          <motion.div
+            animate={{
+              y: [0, -10, 0],
+              rotate: [0, 5, -5, 0],
+            }}
+            transition={{
+              duration: 4,
+              repeat: Number.POSITIVE_INFINITY,
+              ease: "easeInOut",
+            }}
+            className="mb-8"
+          >
+            <div className="w-64 h-64 mx-auto bg-white rounded-full shadow-2xl flex items-center justify-center">
+              <Stethoscope className="w-32 h-32 text-blue-800" />
             </div>
-          )}
+          </motion.div>
 
-          <h2 className="text-4xl font-bold mt-6 mb-4">Welcome to Ayuu</h2>
-          <p className="text-xl text-white/90 mb-6">
-            Your comprehensive healthcare management solution
-          </p>
-        </div>
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="text-4xl font-bold underline text-white mb-4"
+          >
+            HealthCare Pro
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.6 }}
+            className="text-xl text-white  max-w-md mx-auto"
+          >
+            Complete Patient Management System for Modern Healthcare
+          </motion.p>
+        </motion.div>
         </div>
     </div>
   )

@@ -25,7 +25,11 @@ export default function DashboardPage() {
     active: 3,
     completed: 1,
     returnQueue: 0,
-  })
+  });
+
+  useEffect(() => {
+    
+  },[]);
   const router = useRouter()
   if (loading || !user) {
     return (

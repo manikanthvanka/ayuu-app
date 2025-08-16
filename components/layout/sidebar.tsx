@@ -26,7 +26,7 @@ interface SidebarProps {
 export function Sidebar({ user, isOpen, onClose }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-
+  console.log("Sidebar rendered for user:", user)
   const handleLogout = () => {
     localStorage.removeItem("user")
     router.push("/")
